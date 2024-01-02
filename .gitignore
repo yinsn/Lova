@@ -1,0 +1,6 @@
+.DS_Store
+build/*
+dist/*
+src/lova.egg-info/*
+.vscode/*
+*.pyc
