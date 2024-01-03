@@ -1,3 +1,3 @@
-from recommenders import *
-
+from .aggregators import *
 from .evaluators import *
+from .recommenders import *
