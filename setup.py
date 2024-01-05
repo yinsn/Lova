@@ -9,6 +9,7 @@ with (SETUP_DIRECTORY / "README.md").open() as ifs:
 
 install_requires = (
     [
+        "implicit>=0.7.2",
         "paradance>=0.3.16",
     ],
 )
