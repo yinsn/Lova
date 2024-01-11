@@ -99,4 +99,5 @@ class SequenceLoader(BaseDataLoader):
         self._get_column_names()
         self._get_dataframe()
         self._literal_dataframe()
+        logger.info("Data loading finished")
         return self.dataframe
