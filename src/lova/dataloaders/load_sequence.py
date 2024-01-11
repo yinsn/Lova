@@ -1,3 +1,4 @@
+import ast
 import logging
 import os
 from typing import Optional
@@ -80,6 +81,14 @@ class SequenceLoader(BaseDataLoader):
         logger.info("Loading data finished")
         self.dataframe = pd.DataFrame(split_block, columns=self.column_names)
 
+    def _literal_dataframe(self) -> None:
+        """
+        Convert string representations in each column of the dataframe to their literal structures.
+        """
+        logger.info("Converting string representations to literal structures")
+        for col in self.column_names:
+            self.dataframe[col] = self.dataframe[col].apply(ast.literal_eval)
+
     def load_data(self) -> pd.DataFrame:
         """
         Load data from the file and return it as a pandas DataFrame.
@@ -89,4 +98,5 @@ class SequenceLoader(BaseDataLoader):
         """
         self._get_column_names()
         self._get_dataframe()
+        self._literal_dataframe()
         return self.dataframe
