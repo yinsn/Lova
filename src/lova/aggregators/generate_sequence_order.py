@@ -18,8 +18,37 @@ def sequence_order_from_date(date_list: List[int]) -> List:
 
     Examples:
         >>> sequence_order_from_date([20200101, 20210101, 20200102])
-        [1, 0, 2]
+        [2, 0, 1]
     """
     sorted_order = np.argsort(date_list)
     positions = np.argsort(sorted_order[::-1])
     return list(positions)
+
+
+def sequence_order_from_date_with_time_dacay(
+    date_list: List[int], time_decay: float = 1
+) -> List:
+    """
+    Sort a list of dates and apply a time decay factor to each sorted position.
+
+    This function first sorts the given list of dates and then applies a time decay factor to each
+    position in the sorted list. The time decay factor is raised to the power of the position.
+
+    Args:
+        date_list (List[int]): A list of dates represented as integers.
+        time_decay (float, optional): The time decay factor to apply to each position. Defaults to 1.
+
+    Returns:
+        List[float]: A list of decay-adjusted values based on the sorted order of the dates.
+
+    Raises:
+        ValueError: If the `time_decay` is less than or equal to 0.
+
+    Examples:
+        >>> sequence_order_from_date_with_time_decay([20200101, 20210101, 20200102], 0.5)
+        [0.25, 1.0, 0.5]  # Assuming the sorted positions are [2, 0, 1]
+    """
+    if time_decay <= 0:
+        raise ValueError("time_decay must be positive")
+    positions = sequence_order_from_date(date_list)
+    return [time_decay**order for order in positions]
