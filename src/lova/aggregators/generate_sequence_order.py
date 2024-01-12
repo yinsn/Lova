@@ -41,14 +41,9 @@ def sequence_order_from_date_with_time_dacay(
     Returns:
         List[float]: A list of decay-adjusted values based on the sorted order of the dates.
 
-    Raises:
-        ValueError: If the `time_decay` is less than or equal to 0.
-
     Examples:
         >>> sequence_order_from_date_with_time_decay([20200101, 20210101, 20200102], 0.5)
         [0.25, 1.0, 0.5]  # Assuming the sorted positions are [2, 0, 1]
     """
-    if time_decay <= 0:
-        raise ValueError("time_decay must be positive")
     positions = sequence_order_from_date(date_list)
     return [time_decay**order for order in positions]
