@@ -12,7 +12,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def merge_interactions_with_strength(
+def merge_numerical_interactions_with_strength(
     interactions: pd.DataFrame,
     strength_dict: Dict[str, float],
     percentile: float = 0.999,
@@ -51,5 +51,7 @@ def merge_interactions_with_strength(
         percentile=percentile,
     )
     logger.info("Merging interactions with strength values...")
-    interactions["strength"] = np.dot(interactions[selected_columns], strength_list)
+    interactions["numerical_strength"] = np.dot(
+        interactions[selected_columns], strength_list
+    )
     return interactions
