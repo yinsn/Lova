@@ -4,6 +4,8 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 
+from .normalize_with_percentile import normalize_with_percentile_cap
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -13,6 +15,7 @@ logger = logging.getLogger(__name__)
 def merge_interactions_with_strength(
     interactions: pd.DataFrame,
     strength_dict: Dict[str, float],
+    percentile: float = 0.999,
 ) -> pd.DataFrame:
     """
     Merge interaction data with strength values to compute a combined 'strength' column.
@@ -35,7 +38,6 @@ def merge_interactions_with_strength(
         >>> strength_dict = {'A': 0.5, 'B': 1.5}
         >>> merge_interactions_with_strength(interactions, strength_dict)
     """
-    logger.info("Merging interactions with strength values...")
     selected_columns = []
     strength_list = []
     for key, value in strength_dict.items():
@@ -43,5 +45,11 @@ def merge_interactions_with_strength(
         strength_list.append(value)
     for col in selected_columns:
         interactions[col] = interactions[col].apply(sum)
+    interactions = normalize_with_percentile_cap(
+        dataframe=interactions,
+        selected_columns=selected_columns,
+        percentile=percentile,
+    )
+    logger.info("Merging interactions with strength values...")
     interactions["strength"] = np.dot(interactions[selected_columns], strength_list)
     return interactions
