@@ -60,8 +60,8 @@ def merge_numerical_interactions_with_strength(
 
 def merge_bool_interactions_with_strength(
     interactions: pd.DataFrame,
-    label_column: str,
     strength_vector: np.ndarray,
+    label_column: str,
 ) -> pd.DataFrame:
     """
     Merges boolean interactions with a strength vector and updates the DataFrame.
@@ -74,8 +74,8 @@ def merge_bool_interactions_with_strength(
 
     Args:
         interactions (pd.DataFrame): The DataFrame containing boolean interactions.
-        label_column (str): The name of the column in the DataFrame which contains the labels.
         strength_vector (np.ndarray): A numpy array representing the strength vector.
+        label_column (str): The name of the column in the DataFrame which contains the labels.
 
     Returns:
         pd.DataFrame: The updated DataFrame with a new column 'bool_strength' which is
@@ -86,5 +86,6 @@ def merge_bool_interactions_with_strength(
     for label in interactions[label_column].to_list():
         strength_list.append(label_list_to_vector(label, len(strength_vector)))
     strength_block = np.stack(strength_list)
+    logger.info("Calculating dot product...")
     interactions["bool_strength"] = np.dot(strength_block, strength_vector)
     return interactions
