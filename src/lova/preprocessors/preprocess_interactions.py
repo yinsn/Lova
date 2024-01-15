@@ -3,6 +3,7 @@ from typing import Dict
 
 import numpy as np
 from pandas.core.frame import DataFrame
+from scipy.sparse import coo_matrix
 
 from ..aggregators import (
     merge_bool_interactions_with_strength,
@@ -28,6 +29,19 @@ class InteractionPreprocessor(BasePreprocessor):
         numerical_bool_ratio: float = 0.5,
         percentile: float = 0.999,
     ) -> None:
+        """
+        Initializes the InteractionPreprocessor.
+
+        Args:
+            dataset (DataFrame): The dataset containing user-item interactions.
+            user_column (str): The column name for user IDs.
+            item_column (str): The column name for item IDs.
+            label_column (str): The column name for labels.
+            numerical_strength_dict (Dict[str, float]): A dictionary mapping numerical interaction types to strengths.
+            bool_strength_vector (np.ndarray): A vector indicating strengths for boolean interactions.
+            numerical_bool_ratio (float, optional): The ratio for combining numerical and boolean strengths. Defaults to 0.5.
+            percentile (float, optional): The percentile to consider for interaction strength calculation. Defaults to 0.999.
+        """
         super().__init__(user_column, item_column, label_column, dataset)
         self.percentile = percentile
         self.strength_dict = numerical_strength_dict
@@ -73,9 +87,48 @@ class InteractionPreprocessor(BasePreprocessor):
         self.dataset = self.dataset[[self.user_column, self.item_column, "strength"]]
         logger.info("Calculating strength... Done!")
 
+    def _get_id_index_mapping(self) -> None:
+        """
+        Creates a mapping from user and item IDs to their respective indices.
+
+        This method updates the `user_id_to_index` and `item_id_to_index` attributes
+        of the class with dictionaries mapping IDs to indices.
+        """
+        logger.info("Creating id to index mapping...")
+        user_ids = self.dataset[self.user_column].unique()
+        user_id_to_index = {user_id: i for i, user_id in enumerate(user_ids)}
+        self.user_id_to_index = user_id_to_index
+        item_ids = self.dataset[self.item_column].unique()
+        item_id_to_index = {item_id: i for i, item_id in enumerate(item_ids)}
+        self.item_id_to_index = item_id_to_index
+
     def _get_sparse_interaction_matrix(self) -> None:
-        pass
+        """
+        Creates a sparse interaction matrix from the dataset.
+
+        This method first generates ID to index mappings by calling
+        `_get_id_index_mapping` and then constructs a COO (Coordinate) format
+        sparse matrix representing user-item interactions.
+        """
+        logger.info("Creating sparse interaction matrix...")
+        self._get_id_index_mapping()
+        rows = self.dataset[self.user_column].map(self.user_id_to_index)
+        cols = self.dataset[self.item_column].map(self.item_id_to_index)
+        data = self.dataset["strength"]
+        sparse_matrix = coo_matrix(
+            (data, (rows, cols)),
+            shape=(len(self.user_id_to_index), len(self.item_id_to_index)),
+        )
+        self.sparse_interaction_matrix = sparse_matrix
+        logger.info("Creating sparse interaction matrix... Done!")
 
     def preprocess(self) -> None:
+        """
+        Executes preprocessing steps for the recommender system.
+
+        This method performs the necessary preprocessing steps to prepare
+        the data for the recommender system. It includes calculating
+        interaction strengths and creating a sparse interaction matrix.
+        """
         self._calculate_strength()
         self._get_sparse_interaction_matrix()
