@@ -3,7 +3,7 @@ from typing import Dict
 
 import numpy as np
 from pandas.core.frame import DataFrame
-from scipy.sparse import coo_matrix
+from scipy.sparse import csr_matrix
 
 from ..aggregators import (
     merge_bool_interactions_with_strength,
@@ -115,7 +115,7 @@ class InteractionPreprocessor(BasePreprocessor):
         rows = self.dataset[self.user_column].map(self.user_id_to_index)
         cols = self.dataset[self.item_column].map(self.item_id_to_index)
         data = self.dataset["strength"]
-        sparse_matrix = coo_matrix(
+        sparse_matrix = csr_matrix(
             (data, (rows, cols)),
             shape=(len(self.user_id_to_index), len(self.item_id_to_index)),
         )
