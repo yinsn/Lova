@@ -4,6 +4,7 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 
+from .convert_label_encoding_to_vector import label_list_to_vector
 from .normalize_with_percentile import normalize_with_percentile_cap
 
 logging.basicConfig(
@@ -54,4 +55,35 @@ def merge_numerical_interactions_with_strength(
     interactions["numerical_strength"] = np.dot(
         interactions[selected_columns], strength_list
     )
+    return interactions
+
+
+def merge_bool_interactions_with_strength(
+    interactions: pd.DataFrame,
+    label_column: str,
+    strength_vector: np.ndarray,
+) -> pd.DataFrame:
+    """
+    Merges boolean interactions with a strength vector and updates the DataFrame.
+
+    This function takes a DataFrame containing boolean interactions, a specified
+    column name containing labels, and a numpy array representing strength vectors.
+    It converts the labels in the specified column to vectors using the 'label_list_to_vector'
+    function, and then calculates the dot product of these vectors with the strength vector.
+    The result is added to the DataFrame as a new column 'bool_strength'.
+
+    Args:
+        interactions (pd.DataFrame): The DataFrame containing boolean interactions.
+        label_column (str): The name of the column in the DataFrame which contains the labels.
+        strength_vector (np.ndarray): A numpy array representing the strength vector.
+
+    Returns:
+        pd.DataFrame: The updated DataFrame with a new column 'bool_strength' which is
+                      the result of the dot product of label vectors and the strength vector.
+    """
+    strength_list = []
+    for label in interactions[label_column].to_list():
+        strength_list.append(label_list_to_vector(label, len(strength_vector)))
+    strength_block = np.stack(strength_list)
+    interactions["bool_strength"] = np.dot(strength_block, strength_vector)
     return interactions
