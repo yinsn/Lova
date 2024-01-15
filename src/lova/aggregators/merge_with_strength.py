@@ -82,6 +82,7 @@ def merge_bool_interactions_with_strength(
                       the result of the dot product of label vectors and the strength vector.
     """
     strength_list = []
+    logger.info("Merging boolean interactions with strength values...")
     for label in interactions[label_column].to_list():
         strength_list.append(label_list_to_vector(label, len(strength_vector)))
     strength_block = np.stack(strength_list)
