@@ -1,3 +1,4 @@
+import logging
 from typing import Dict
 
 from implicit.als import AlternatingLeastSquares
@@ -5,6 +6,11 @@ from numpy import ndarray
 from pandas.core.frame import DataFrame
 
 from ..preprocessors import InteractionPreprocessor
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 class ImplicitALSRecommender(InteractionPreprocessor):
@@ -72,6 +78,7 @@ class ImplicitALSRecommender(InteractionPreprocessor):
             iterations=self.iterations,
         )
         self.model_prepared = True
+        logger.info("Model initialized.")
 
     def fit(self) -> None:
         """
@@ -83,6 +90,8 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         """
         if self.model_prepared == False:
             self._init_model()
+        logger.info("Fitting model...")
         self.model.fit(user_items=self.sparse_interaction_matrix)
+        logger.info("Model fitted.")
         self.item_factors = self.model.item_factors
         self.user_factors = self.model.user_factors
