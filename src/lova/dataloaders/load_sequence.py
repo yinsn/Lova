@@ -1,7 +1,8 @@
 import ast
 import logging
 import os
-from typing import Optional
+import re
+from typing import List, Optional
 
 import pandas as pd
 
@@ -65,6 +66,30 @@ class SequenceLoader(BaseDataLoader):
             split_addresses = first_split[0].split(",")
         return split_addresses
 
+    @staticmethod
+    def convert_string_to_tuple_of_num(string: str) -> tuple:
+        """
+        Converts a string containing numeric values to a tuple of numbers.
+
+        This method uses regular expressions to find all integer and floating-point numbers in the input string.
+        Each number is converted to an integer if it's a whole number, or to a float if it has a decimal point.
+
+        Args:
+            string (str): The string containing numeric values.
+
+        Returns:
+            Tuple[Union[int, float], ...]: A tuple containing the extracted numbers, each as an integer or a float.
+
+        Example:
+            convert_string_to_tuple_of_num("12, -34.5") returns (12, -34.5)
+        """
+        numbers = re.findall(r"[-+]?\d+\.?\d*", string)
+        num_tuple = tuple(
+            int(num) if num.replace("-", "").isdigit() else float(num)
+            for num in numbers
+        )
+        return num_tuple
+
     def _get_dataframe(self) -> None:
         """
         Private method to load data from the file and convert it into a pandas DataFrame.
@@ -87,7 +112,9 @@ class SequenceLoader(BaseDataLoader):
         """
         logger.info("Converting string representations to literal structures")
         for col in self.column_names:
-            self.dataframe[col] = self.dataframe[col].apply(ast.literal_eval)
+            self.dataframe[col] = self.dataframe[col].apply(
+                self.convert_string_to_tuple_of_num
+            )
 
     def load_data(self) -> pd.DataFrame:
         """
