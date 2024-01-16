@@ -1,5 +1,7 @@
 import logging
+from typing import Dict
 
+import numpy as np
 import pandas as pd
 
 from ..recommenders import ImplicitALSRecommender
@@ -47,6 +49,36 @@ class ImplicitALSEvaluator(BaseEvaluator):
         self.dataset.dropna(inplace=True)
         self.user_evaluate_indice = self.dataset.user_map.astype(int).to_list()
         self.item_evaluate_indice = self.dataset.item_map.astype(int).to_list()
+
+    def _update_recommender(
+        self,
+        numerical_strength_dict: Dict[str, float],
+        bool_strength_vector: np.ndarray,
+        numerical_bool_ratio: float,
+    ) -> None:
+        """
+        Updates the recommender's internal state based on the provided data.
+
+        This method updates the sparse interaction matrix of the recommender system using
+        a combination of numerical strengths and boolean strengths, controlled by a ratio
+        parameter. After updating the interaction matrix, the recommender is refitted.
+
+        Args:
+            numerical_strength_dict (Dict[str, float]): A dictionary mapping item identifiers
+                to their numerical strengths. These strengths represent the magnitude of
+                interaction or preference a user has towards these items.
+            bool_strength_vector (np.ndarray): A numpy array representing boolean strengths.
+                This vector indicates the presence or absence of interaction or preference
+                between a user and items.
+            numerical_bool_ratio (float): A ratio determining the balance between numerical
+                strengths and boolean strengths in updating the interaction matrix.
+        """
+        self.recommender._update_sparse_interaction_matrix(
+            numerical_strength_dict=numerical_strength_dict,
+            bool_strength_vector=bool_strength_vector,
+            numerical_bool_ratio=numerical_bool_ratio,
+        )
+        self.recommender.fit()
 
     def evaluate(self) -> float:
         """
