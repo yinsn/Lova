@@ -53,5 +53,15 @@ def sequence_order_from_date_with_time_dacay(
 def sequence_with_equal_importance(
     interactions: pd.DataFrame, selected_columns: List[str]
 ) -> None:
+    """
+    Modifies the input DataFrame by summing the values in each specified column.
+
+    This function iterates over each column listed in `selected_columns` and replaces its values with their sum.
+    The sum is calculated across all rows for each column.
+
+    Args:
+        interactions (pd.DataFrame): The DataFrame to be modified.
+        selected_columns (List[str]): A list of column names in the DataFrame whose values will be summed.
+    """
     for col in selected_columns:
         interactions[col] = interactions[col].apply(sum)
