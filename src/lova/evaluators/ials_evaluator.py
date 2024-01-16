@@ -1,5 +1,5 @@
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
 import numpy as np
 import optuna
@@ -20,16 +20,20 @@ class ImplicitALSEvaluator(BaseEvaluator):
         self,
         dataset: pd.DataFrame,
         recommender: ImplicitALSRecommender,
+        study_name: Optional[str] = None,
+        study_path: Optional[str] = None,
     ) -> None:
         """
         Initializes the ImplicitALSEvaluator.
 
         Args:
             dataset (pd.DataFrame): The dataset to be used for evaluation.
+            study_name (str, optional): The name of the study directory. If not provided, the current
+                                        system time in the format 'YYYY_MM_DD_HH_MM' will be used.
+            study_path (str, optional): The base directory path. Defaults to the current directory.
             recommender (ImplicitALSRecommender): The recommender system instance to evaluate.
         """
-        super().__init__(dataset)
-        self.dataset = dataset
+        super().__init__(dataset, study_name, study_path)
         self.recommender = recommender
         self._map_id_to_index()
         self.study = optuna.create_study(direction="maximize")
