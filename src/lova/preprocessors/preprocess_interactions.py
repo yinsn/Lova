@@ -9,6 +9,7 @@ from scipy.sparse import csr_matrix
 from ..aggregators import (
     merge_bool_interactions_with_strength,
     merge_numerical_interactions_with_strength,
+    normalize_with_percentile_cap,
 )
 from .base import BasePreprocessor
 
@@ -58,6 +59,22 @@ class InteractionPreprocessor(BasePreprocessor):
         logger.info("Merging sequences...")
         raise NotImplementedError
 
+    def _normalize_with_percentile_cap(
+        self,
+    ) -> None:
+        """
+        Normalizes specified columns in the dataset using a percentile cap.
+
+        This method applies normalization to the columns specified in `self.strength_dict`
+        within the `self.dataset` DataFrame. The normalization process is capped at the specified percentile,
+        meaning values are normalized within the range determined by this percentile.
+        """
+        self.dataset = normalize_with_percentile_cap(
+            dataframe=self.dataset,
+            selected_columns=list(self.strength_dict.keys()),
+            percentile=self.percentile,
+        )
+
     def _calculate_strength(self) -> None:
         """
         Calculates and updates the 'strength' of interactions in the dataset.
@@ -81,7 +98,6 @@ class InteractionPreprocessor(BasePreprocessor):
         self.dataset = merge_numerical_interactions_with_strength(
             interactions=self.dataset,
             strength_dict=self.strength_dict,
-            percentile=self.percentile,
         )
         self.dataset = merge_bool_interactions_with_strength(
             interactions=self.dataset,
@@ -137,6 +153,7 @@ class InteractionPreprocessor(BasePreprocessor):
         interaction strengths and creating a sparse interaction matrix.
         """
         self._merge_sequences()
+        self._normalize_with_percentile_cap()
         self._calculate_strength()
         self._get_id_index_mapping()
         self._get_sparse_interaction_matrix()

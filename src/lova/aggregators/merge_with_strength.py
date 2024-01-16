@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 
 from .convert_label_encoding_to_vector import label_list_to_vector
-from .normalize_with_percentile import normalize_with_percentile_cap
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -16,7 +15,6 @@ logger = logging.getLogger(__name__)
 def merge_numerical_interactions_with_strength(
     interactions: pd.DataFrame,
     strength_dict: Dict[str, float],
-    percentile: float = 0.999,
 ) -> pd.DataFrame:
     """
     Merge interaction data with strength values to compute a combined 'strength' column.
@@ -44,11 +42,6 @@ def merge_numerical_interactions_with_strength(
     for key, value in strength_dict.items():
         selected_columns.append(key)
         strength_list.append(value)
-    interactions = normalize_with_percentile_cap(
-        dataframe=interactions,
-        selected_columns=selected_columns,
-        percentile=percentile,
-    )
     logger.info("Merging interactions with strength values...")
     interactions["numerical_strength"] = np.dot(
         interactions[selected_columns], strength_list
