@@ -144,6 +144,30 @@ class InteractionPreprocessor(BasePreprocessor):
         self.sparse_interaction_matrix = sparse_matrix
         logger.info("Creating sparse interaction matrix... Done!")
 
+    def _update_sparse_interaction_matrix(
+        self,
+        numerical_strength_dict: Dict[str, float],
+        bool_strength_vector: np.ndarray,
+        numerical_bool_ratio: float = 0.5,
+    ) -> None:
+        """
+        Updates the sparse interaction matrix with new strength parameters.
+
+        This method sets new strength calculation parameters and updates the sparse interaction matrix
+        accordingly. It involves recalculating the strength of interactions and reconstructing the sparse matrix
+        based on the new strength values.
+
+        Args:
+            numerical_strength_dict (Dict[str, float]): A dictionary mapping numerical interaction types to strengths.
+            bool_strength_vector (np.ndarray): A vector indicating strengths for boolean interactions.
+            numerical_bool_ratio (float, optional): The ratio for combining numerical and boolean strengths. Defaults to 0.5.
+        """
+        self.strength_dict = numerical_strength_dict
+        self.strength_vector = bool_strength_vector
+        self.numerical_bool_ratio = numerical_bool_ratio
+        self._calculate_strength()
+        self._get_sparse_interaction_matrix()
+
     def preprocess(self) -> None:
         """
         Executes preprocessing steps for the recommender system.
