@@ -55,7 +55,7 @@ class ImplicitALSEvaluator(BaseEvaluator):
         numerical_strength_dict: Dict[str, float],
         bool_strength_vector: np.ndarray,
         numerical_bool_ratio: float,
-    ) -> None:
+    ) -> float:
         """
         Updates the recommender's internal state based on the provided data.
 
@@ -79,6 +79,7 @@ class ImplicitALSEvaluator(BaseEvaluator):
             numerical_bool_ratio=numerical_bool_ratio,
         )
         self.recommender.fit()
+        return self.evaluate()
 
     def evaluate(self) -> float:
         """
