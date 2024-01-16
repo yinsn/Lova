@@ -32,7 +32,7 @@ class ImplicitALSEvaluator(BaseEvaluator):
         self.dataset = dataset
         self.recommender = recommender
         self._map_id_to_index()
-        self.study = optuna.create_study()
+        self.study = optuna.create_study(direction="maximize")
 
     def _map_id_to_index(self) -> None:
         """
