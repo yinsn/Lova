@@ -1,4 +1,5 @@
 import logging
+from abc import abstractmethod
 from typing import Dict
 
 import numpy as np
@@ -48,6 +49,14 @@ class InteractionPreprocessor(BasePreprocessor):
         self.strength_vector = bool_strength_vector
         self.numerical_bool_ratio = numerical_bool_ratio
         self.preprocess()
+
+    @abstractmethod
+    def _merge_sequences(self) -> None:
+        """
+        Merges sequences of interactions into a single interaction.
+        """
+        logger.info("Merging sequences...")
+        raise NotImplementedError
 
     def _calculate_strength(self) -> None:
         """
@@ -127,6 +136,7 @@ class InteractionPreprocessor(BasePreprocessor):
         the data for the recommender system. It includes calculating
         interaction strengths and creating a sparse interaction matrix.
         """
+        self._merge_sequences()
         self._calculate_strength()
         self._get_id_index_mapping()
         self._get_sparse_interaction_matrix()

@@ -5,6 +5,7 @@ from implicit.als import AlternatingLeastSquares
 from numpy import ndarray
 from pandas.core.frame import DataFrame
 
+from ..aggregators import sequence_with_equal_importance
 from ..preprocessors import InteractionPreprocessor
 
 logging.basicConfig(
@@ -78,6 +79,19 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         )
         self.model_prepared = True
         logger.info("Model initialized.")
+
+    def _merge_sequences(self) -> None:
+        """
+        Merges sequences in the dataset with equal importance.
+
+        This method applies the `sequence_with_equal_importance` function to the dataset, focusing on
+        the columns specified in `self.strength_dict`. The purpose of this merging is to combine
+        sequences based on certain criteria defined in `sequence_with_equal_importance`.
+        """
+        sequence_with_equal_importance(
+            interactions=self.dataset,
+            selected_columns=list(self.strength_dict.keys()),
+        )
 
     def fit(self) -> None:
         """

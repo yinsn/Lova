@@ -2,6 +2,7 @@ from .convert_label_encoding_to_vector import label_list_to_vector, label_to_vec
 from .generate_sequence_order import (
     sequence_order_from_date,
     sequence_order_from_date_with_time_dacay,
+    sequence_with_equal_importance,
 )
 from .merge_with_strength import (
     merge_bool_interactions_with_strength,
@@ -19,4 +20,5 @@ __all__ = [
     "normalize_with_percentile_cap",
     "sequence_order_from_date_with_time_dacay",
     "sequence_order_from_date",
+    "sequence_with_equal_importance",
 ]

@@ -1,6 +1,7 @@
 from typing import List
 
 import numpy as np
+import pandas as pd
 
 
 def sequence_order_from_date(date_list: List[int]) -> List:
@@ -47,3 +48,10 @@ def sequence_order_from_date_with_time_dacay(
     """
     positions = sequence_order_from_date(date_list)
     return [time_decay**order for order in positions]
+
+
+def sequence_with_equal_importance(
+    interactions: pd.DataFrame, selected_columns: List[str]
+) -> None:
+    for col in selected_columns:
+        interactions[col] = interactions[col].apply(sum)

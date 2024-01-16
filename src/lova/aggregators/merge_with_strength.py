@@ -44,8 +44,6 @@ def merge_numerical_interactions_with_strength(
     for key, value in strength_dict.items():
         selected_columns.append(key)
         strength_list.append(value)
-    for col in selected_columns:
-        interactions[col] = interactions[col].apply(sum)
     interactions = normalize_with_percentile_cap(
         dataframe=interactions,
         selected_columns=selected_columns,
