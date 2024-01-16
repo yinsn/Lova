@@ -1,4 +1,4 @@
-<div align="center"><img src="https://github.com/yinsn/Lova/blob/develop/docs/images/lova.svg" width="800"/></div>
+<div align="left"><img src="https://github.com/yinsn/Lova/blob/develop/docs/images/lova.svg" width="400"/></div>
 
 # Lova
 [![Python](https://img.shields.io/badge/python3.8%7C3.9-red?logo=Python&logoColor=white)](https://www.python.org)
