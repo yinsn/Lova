@@ -91,5 +91,7 @@ class ImplicitALSEvaluator(BaseEvaluator):
         logger.info("Evaluating...")
         user_vectors = self.recommender.model.user_factors[self.user_evaluate_indice]
         item_vectors = self.recommender.model.item_factors[self.item_evaluate_indice]
-        score = (user_vectors * item_vectors).sum(axis=1)
-        return float(score.mean())
+        scores = (user_vectors * item_vectors).sum(axis=1)
+        score = float(scores.mean())
+        logger.info(f"Evaluation score: {score}")
+        return score
