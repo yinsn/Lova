@@ -76,6 +76,7 @@ class ImplicitALSRecommender(InteractionPreprocessor):
             regularization=self.regularization,
             alpha=self.alpha,
             iterations=self.iterations,
+            random_state=42,
         )
         self.model_prepared = True
         logger.info("Model initialized.")
