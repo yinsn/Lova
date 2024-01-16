@@ -2,7 +2,9 @@ import logging
 from typing import Dict
 
 import numpy as np
+import optuna
 import pandas as pd
+from optuna.trial import Trial
 
 from ..recommenders import ImplicitALSRecommender
 from .base import BaseEvaluator
@@ -30,6 +32,7 @@ class ImplicitALSEvaluator(BaseEvaluator):
         self.dataset = dataset
         self.recommender = recommender
         self._map_id_to_index()
+        self.study = optuna.create_study()
 
     def _map_id_to_index(self) -> None:
         """
@@ -95,3 +98,58 @@ class ImplicitALSEvaluator(BaseEvaluator):
         score = float(scores.mean())
         logger.info(f"Evaluation score: {score}")
         return score
+
+    def objective(self, trial: Trial) -> float:
+        """
+        Optimizes the recommender system's weights based on the trial configurations provided by Optuna.
+
+        This function is designed to be used as an objective function for an Optuna optimization study. It suggests
+        values for `numerical_bool_ratio`, `numerical_weights`, and `bool_weights`, and then uses these values to
+        update the recommender system. The performance of the recommender system with these weights is evaluated,
+        and the resulting score is returned as the objective value.
+
+        Args:
+            trial (Trial): An Optuna trial object which provides methods to suggest parameters, such as floats, ints, and categoricals.
+
+        Returns:
+            float: The evaluation score of the recommender system with the suggested parameters.
+        """
+        numerical_bool_ratio = trial.suggest_float(
+            "numerical_bool_ratio", 1e-1, 1e3, log=True
+        )
+        numerical_weights = [
+            trial.suggest_float(f"{key}", 1e-1, 1e3, log=True)
+            for key in self.recommender.strength_dict.keys()
+        ]
+        bool_weights = [
+            trial.suggest_float(f"bool_weights{i}", 1e-1, 1e3, log=True)
+            for i in range(len(self.recommender.strength_vector))
+        ]
+        strength_dict = {}
+        for index, key in enumerate(self.recommender.strength_dict.keys()):
+            strength_dict[key] = numerical_weights[index]
+        strength_vector = np.array(bool_weights)
+        logger.info(f"Trial number: {trial.number}")
+        logger.info(f"numerical_bool_ratio: {numerical_bool_ratio}")
+        logger.info(f"numerical_weights: {numerical_weights}")
+        logger.info(f"bool_weights: {bool_weights}")
+        score = self._update_recommender(
+            numerical_strength_dict=strength_dict,
+            bool_strength_vector=strength_vector,
+            numerical_bool_ratio=numerical_bool_ratio,
+        )
+        return score
+
+    def tune(self, n_trials: int = 100) -> None:
+        """
+        Conducts a hyperparameter tuning session using the Optuna framework.
+
+        This method initializes a logger, then uses Optuna's `study.optimize` method to optimize the recommender system's
+        parameters. The optimization is guided by the `objective` method of this class, which is expected to be defined elsewhere
+        within the class.
+
+        Args:
+            n_trials (int, optional): The number of trials for optimization. Defaults to 100.
+        """
+        self.build_logger()
+        self.study.optimize(self.objective, n_trials=n_trials)
