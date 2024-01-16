@@ -84,7 +84,6 @@ class InteractionPreprocessor(BasePreprocessor):
             self.dataset["numerical_strength"] * self.numerical_bool_ratio
             + self.dataset["bool_strength"]
         )
-        self.dataset = self.dataset[[self.user_column, self.item_column, "strength"]]
         logger.info("Calculating strength... Done!")
 
     def _get_id_index_mapping(self) -> None:
@@ -101,22 +100,20 @@ class InteractionPreprocessor(BasePreprocessor):
         item_ids = self.dataset[self.item_column].unique()
         item_id_to_index = {item_id: i for i, item_id in enumerate(item_ids)}
         self.item_id_to_index = item_id_to_index
+        self.rows = self.dataset[self.user_column].map(self.user_id_to_index)
+        self.cols = self.dataset[self.item_column].map(self.item_id_to_index)
 
     def _get_sparse_interaction_matrix(self) -> None:
         """
         Creates a sparse interaction matrix from the dataset.
 
-        This method first generates ID to index mappings by calling
-        `_get_id_index_mapping` and then constructs a COO (Coordinate) format
+        This method constructs a CSR (Coordinate) format
         sparse matrix representing user-item interactions.
         """
         logger.info("Creating sparse interaction matrix...")
-        self._get_id_index_mapping()
-        rows = self.dataset[self.user_column].map(self.user_id_to_index)
-        cols = self.dataset[self.item_column].map(self.item_id_to_index)
         data = self.dataset["strength"]
         sparse_matrix = csr_matrix(
-            (data, (rows, cols)),
+            (data, (self.rows, self.cols)),
             shape=(len(self.user_id_to_index), len(self.item_id_to_index)),
         )
         self.sparse_interaction_matrix = sparse_matrix
@@ -131,4 +128,5 @@ class InteractionPreprocessor(BasePreprocessor):
         interaction strengths and creating a sparse interaction matrix.
         """
         self._calculate_strength()
+        self._get_id_index_mapping()
         self._get_sparse_interaction_matrix()
