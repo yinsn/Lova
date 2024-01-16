@@ -61,7 +61,6 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         self.alpha = alpha
         self.iterations = iterations
         self.model_prepared = False
-        self.fit()
 
     def _init_model(self) -> None:
         """
