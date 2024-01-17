@@ -120,7 +120,7 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         self.item_factors = self.model.item_factors
         self.user_factors = self.model.user_factors
 
-    def _dump_model(self, path: str = "ials_model.pkl") -> None:
+    def save_model(self, path: str = "ials_model.pkl") -> None:
         """
         Dumps the model to a file.
 
