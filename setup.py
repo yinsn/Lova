@@ -11,6 +11,7 @@ install_requires = (
     [
         "implicit>=0.7.2",
         "optuna>=3.1.1",
+        "pyyaml>=6.0",
     ],
 )
 
