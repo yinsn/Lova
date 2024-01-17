@@ -1,4 +1,5 @@
 import logging
+import pickle
 from typing import Dict, Optional
 
 import numpy as np
@@ -118,3 +119,16 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         logger.info("Model fitted.")
         self.item_factors = self.model.item_factors
         self.user_factors = self.model.user_factors
+
+    def _dump_model(self, path: str = "ials_model.pkl") -> None:
+        """
+        Dumps the model to a file.
+
+        This method dumps the model to a file using the pickle library.
+
+        Args:
+            path (str): The path to the file to dump the model to.
+        """
+        logger.info(f"Dumping model to {path}...")
+        with open(path, "wb") as f:
+            pickle.dump(self, f)

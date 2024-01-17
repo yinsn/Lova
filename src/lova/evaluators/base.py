@@ -5,7 +5,7 @@ from typing import Optional
 import optuna
 import pandas as pd
 
-from .set_path import ensure_study_directory
+from ..dataloaders.set_path import ensure_study_directory
 
 
 class BaseEvaluator(metaclass=ABCMeta):
