@@ -1,8 +1,8 @@
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
+import numpy as np
 from implicit.als import AlternatingLeastSquares
-from numpy import ndarray
 from pandas.core.frame import DataFrame
 
 from ..aggregators import sequence_with_equal_importance
@@ -18,26 +18,28 @@ class ImplicitALSRecommender(InteractionPreprocessor):
     def __init__(
         self,
         dataset: DataFrame,
-        user_column: str,
-        item_column: str,
-        label_column: str,
-        numerical_strength_dict: Dict[str, float],
-        bool_strength_vector: ndarray,
-        numerical_bool_ratio: float = 0.5,
-        percentile: float = 0.999,
-        factors: int = 64,
-        regularization: float = 0.05,
-        alpha: float = 2.0,
-        iterations: int = 15,
+        config: Dict,
+        user_column: Optional[str] = None,
+        item_column: Optional[str] = None,
+        label_column: Optional[str] = None,
+        numerical_strength_dict: Optional[Dict[str, float]] = {},
+        bool_strength_vector: Optional[np.ndarray] = np.array([]),
+        numerical_bool_ratio: Optional[float] = 0.5,
+        percentile: Optional[float] = 0.999,
+        factors: Optional[int] = 64,
+        regularization: Optional[float] = 0.05,
+        alpha: Optional[float] = 2.0,
+        iterations: Optional[int] = 15,
     ) -> None:
         """
         Initializes the ImplicitALSRecommender.
 
         Args:
             dataset (DataFrame): The dataset containing user-item interactions.
-            user_column (str): The column name for user IDs.
-            item_column (str): The column name for item IDs.
-            label_column (str): The column name for labels.
+            config (Dict, optional): A dictionary containing the configuration parameters.
+            user_column (str, optional): The column name for user IDs.
+            item_column (str, optional): The column name for item IDs.
+            label_column (str, optional): The column name for labels.
             numerical_strength_dict (Dict[str, float]): A dictionary mapping numerical interaction types to strengths.
             bool_strength_vector (ndarray): A vector indicating strengths for boolean interactions.
             numerical_bool_ratio (float, optional): The ratio for combining numerical and boolean strengths. Defaults to 0.5.
@@ -49,6 +51,7 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         """
         super().__init__(
             dataset,
+            config,
             user_column,
             item_column,
             label_column,
@@ -57,10 +60,16 @@ class ImplicitALSRecommender(InteractionPreprocessor):
             numerical_bool_ratio,
             percentile,
         )
-        self.factors = factors
-        self.regularization = regularization
-        self.alpha = alpha
-        self.iterations = iterations
+        if config is not None:
+            self.factors = config.get("factors", 64)
+            self.regularization = config.get("regularization", 0.05)
+            self.alpha = config.get("alpha", 2.0)
+            self.iterations = config.get("iterations", 15)
+        else:
+            self.factors = factors
+            self.regularization = regularization
+            self.alpha = alpha
+            self.iterations = iterations
         self.model_prepared = False
 
     def _init_model(self) -> None:

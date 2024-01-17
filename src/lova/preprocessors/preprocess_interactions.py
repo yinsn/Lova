@@ -1,6 +1,6 @@
 import logging
 from abc import abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 import numpy as np
 from pandas.core.frame import DataFrame
@@ -23,32 +23,40 @@ class InteractionPreprocessor(BasePreprocessor):
     def __init__(
         self,
         dataset: DataFrame,
-        user_column: str,
-        item_column: str,
-        label_column: str,
-        numerical_strength_dict: Dict[str, float],
-        bool_strength_vector: np.ndarray,
-        numerical_bool_ratio: float = 0.5,
-        percentile: float = 0.999,
+        config: Optional[Dict] = None,
+        user_column: Optional[str] = None,
+        item_column: Optional[str] = None,
+        label_column: Optional[str] = None,
+        numerical_strength_dict: Optional[Dict[str, float]] = {},
+        bool_strength_vector: Optional[np.ndarray] = np.array([]),
+        numerical_bool_ratio: Optional[float] = 0.5,
+        percentile: Optional[float] = 0.999,
     ) -> None:
         """
         Initializes the InteractionPreprocessor.
 
         Args:
             dataset (DataFrame): The dataset containing user-item interactions.
-            user_column (str): The column name for user IDs.
-            item_column (str): The column name for item IDs.
-            label_column (str): The column name for labels.
+            config (Dict, optional): A dictionary containing the configuration parameters.
+            user_column (str, optional): The column name for user IDs.
+            item_column (str, optional): The column name for item IDs.
+            label_column (str, optional): The column name for labels.
             numerical_strength_dict (Dict[str, float]): A dictionary mapping numerical interaction types to strengths.
             bool_strength_vector (np.ndarray): A vector indicating strengths for boolean interactions.
             numerical_bool_ratio (float, optional): The ratio for combining numerical and boolean strengths. Defaults to 0.5.
             percentile (float, optional): The percentile to consider for interaction strength calculation. Defaults to 0.999.
         """
-        super().__init__(user_column, item_column, label_column, dataset)
-        self.percentile = percentile
-        self.strength_dict = numerical_strength_dict
-        self.strength_vector = bool_strength_vector
-        self.numerical_bool_ratio = numerical_bool_ratio
+        super().__init__(dataset, config, user_column, item_column, label_column)
+        if config is not None:
+            self.percentile = config.get("percentile", 0.999)
+            self.strength_dict = config.get("numerical_strength_dict", {})
+            self.strength_vector = config.get("bool_strength_vector", np.array([]))
+            self.numerical_bool_ratio = config.get("numerical_bool_ratio", 0.5)
+        else:
+            self.percentile = percentile
+            self.strength_dict = numerical_strength_dict
+            self.strength_vector = bool_strength_vector
+            self.numerical_bool_ratio = numerical_bool_ratio
         self.preprocess()
 
     @abstractmethod
