@@ -25,7 +25,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url="https://github.com/yinsn/Lova",
-    python_requires=">=3.8",
+    python_requires=">=3.6",
     description="Lova (Long-term Value Algorithm) is a recommendation algorithm framework focused on long-term value matching.",
     packages=find_packages("src"),
     package_dir={"": "src"},
