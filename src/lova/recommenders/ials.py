@@ -120,7 +120,7 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         self.item_factors = self.model.item_factors
         self.user_factors = self.model.user_factors
 
-    def save_model(self, path: str = "ials_model.pkl") -> None:
+    def save_model(self, path: str = "model") -> None:
         """
         Dumps the model to a file.
 
@@ -129,6 +129,15 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         Args:
             path (str): The path to the file to dump the model to.
         """
-        logger.info(f"Dumping model to {path}...")
-        with open(path, "wb") as f:
-            pickle.dump(self, f)
+        logger.info("Saving user id to index mapping...")
+        with open(f"{path}_user_id_to_index.pkl", "wb") as f:
+            pickle.dump(self.user_id_to_index, f)
+        logger.info("Saving item id to index mapping...")
+        with open(f"{path}_item_id_to_index.pkl", "wb") as f:
+            pickle.dump(self.item_id_to_index, f)
+        logger.info("Saving user factors...")
+        with open(f"{path}_user_factors.pkl", "wb") as f:
+            pickle.dump(self.user_factors, f)
+        logger.info("Saving item factors...")
+        with open(f"{path}_item_factors.pkl", "wb") as f:
+            pickle.dump(self.item_factors, f)
