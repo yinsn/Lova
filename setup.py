@@ -11,9 +11,11 @@ install_requires = (
     [
         "implicit>=0.7.2",
         "joblib>=1.3.2",
+        "mpi4py>=3.1.5",
         "optuna>=3.0.6",
         "pyarrow>=14.0.1",
         "pyyaml>=6.0",
+        "tqdm>=4.66.1",
     ],
 )
 
