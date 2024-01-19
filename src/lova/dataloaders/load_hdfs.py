@@ -175,7 +175,7 @@ class HDFSDataloader:
                 yield batch
 
     @staticmethod
-    def filter_with_mod(parts: List[str], mod: int, mod_index: int = 1) -> int:
+    def filter_with_mod(parts: List[str], mod: int, mod_index: int = 0) -> int:
         """
         Filters a line based on a modulus operation.
 
