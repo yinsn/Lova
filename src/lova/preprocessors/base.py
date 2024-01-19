@@ -30,6 +30,7 @@ class BasePreprocessor(metaclass=ABCMeta):
             config (Dict, optional): A dictionary containing the configuration parameters.
             dataset (pd.DataFrame): The dataset to be preprocessed.
         """
+        self.config = config
         if config is not None:
             self.user_column = config.get("user_column", "")
             self.item_column = config.get("item_column", "")

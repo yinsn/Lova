@@ -7,6 +7,7 @@ from implicit.als import AlternatingLeastSquares
 from pandas.core.frame import DataFrame
 
 from ..aggregators import sequence_with_equal_importance
+from ..dataloaders import ensure_study_directory
 from ..preprocessors import InteractionPreprocessor
 
 logging.basicConfig(
@@ -120,7 +121,7 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         self.item_factors = self.model.item_factors
         self.user_factors = self.model.user_factors
 
-    def save_model(self, path: str = "model") -> None:
+    def save_model(self, path: Optional[str] = None) -> None:
         """
         Dumps the model to a file.
 
@@ -129,15 +130,21 @@ class ImplicitALSRecommender(InteractionPreprocessor):
         Args:
             path (str): The path to the file to dump the model to.
         """
+        if path is None and self.config is not None:
+            path = ensure_study_directory(
+                study_name=self.config.get("study_name", None),
+                study_path=self.config.get("study_path", None),
+            )
+        logger.info(f"Saving model in {path}...")
         logger.info("Saving user id to index mapping...")
-        with open(f"{path}_user_id_to_index.pkl", "wb") as f:
+        with open(f"{path}/user_id_to_index.pkl", "wb") as f:
             pickle.dump(self.user_id_to_index, f)
         logger.info("Saving item id to index mapping...")
-        with open(f"{path}_item_id_to_index.pkl", "wb") as f:
+        with open(f"{path}/item_id_to_index.pkl", "wb") as f:
             pickle.dump(self.item_id_to_index, f)
         logger.info("Saving user factors...")
-        with open(f"{path}_user_factors.pkl", "wb") as f:
+        with open(f"{path}/user_factors.pkl", "wb") as f:
             pickle.dump(self.user_factors, f)
         logger.info("Saving item factors...")
-        with open(f"{path}_item_factors.pkl", "wb") as f:
+        with open(f"{path}/item_factors.pkl", "wb") as f:
             pickle.dump(self.item_factors, f)
