@@ -35,9 +35,6 @@ class DataFrameLoader(BaseDataLoader):
         """
         self.column_names = column_names
         super().__init__(file_path, file_name, file_type, max_rows, config)
-        self.file_url = (
-            os.path.join(self.file_path, self.file_name) + "." + self.file_type
-        )
 
     @staticmethod
     def convert_string_to_tuple_of_num(value: Union[int, str]) -> tuple:
@@ -66,13 +63,25 @@ class DataFrameLoader(BaseDataLoader):
         """
         Loads data from a file URL into a pandas DataFrame.
         """
-        logger.info("Loading data from %s", self.file_url)
-        data = pd.read_pickle(self.file_url)
+        logger.info("Loading data from %s", self.file_path)
+        if self.file_name is not None:
+            file_url = os.path.join(self.file_path, self.file_name)
+            data = pd.read_pickle(file_url)
+        else:
+            files = os.listdir(self.file_path)
+            df_list = []
+            for file in files:
+                if file.endswith(self.file_type):
+                    file_url = os.path.join(self.file_path, file)
+                    data = pd.read_pickle(file_url)
+                    df_list.append(data)
+            data = pd.concat(df_list)
+
         if isinstance(data, pd.DataFrame):
             self.dataframe = data
             self.dataframe.columns = self.column_names
         else:
-            logger.error("Failed to load data from %s", self.file_url)
+            logger.error("Failed to load data from %s", file_url)
             self.dataframe = pd.DataFrame()
 
     def _literal_dataframe(self) -> None:
