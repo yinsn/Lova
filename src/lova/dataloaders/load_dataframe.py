@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class DataFrameLoader(BaseDataLoader):
     def __init__(
         self,
-        column_names: pd.Index,
+        column_names: Optional[pd.Index] = None,
         file_path: Optional[str] = None,
         file_name: Optional[str] = None,
         file_type: str = "pkl",
@@ -33,8 +33,11 @@ class DataFrameLoader(BaseDataLoader):
             max_rows (Optional[int]): Maximum number of rows to load from the file. Defaults to None.
             config (Optional[Dict]): Configuration parameters for data loading. Defaults to None.
         """
-        self.column_names = column_names
         super().__init__(file_path, file_name, file_type, max_rows, config)
+        if config is not None:
+            self.column_names = config.get("column_names", None)
+        else:
+            self.column_names = column_names
 
     @staticmethod
     def convert_string_to_tuple_of_num(value: Union[int, str]) -> tuple:

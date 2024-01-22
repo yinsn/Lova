@@ -14,7 +14,7 @@ class BaseDataLoader(metaclass=ABCMeta):
     Args:
         file_path (str, optional): The path to the directory where the file is located.
         file_name (str, optional): The name of the file without extension.
-        file_type (str, optional): The type of the file. Defaults to 'csv'.
+        file_type (str, optional): The type of the file. Defaults to 'pkl'.
         max_rows (Optional[int], optional): The maximum number of rows to load from the file. Defaults to None.
         config (Optional[Dict], optional): A dictionary containing the configuration for the data loader. Defaults to None.
     """
@@ -23,14 +23,14 @@ class BaseDataLoader(metaclass=ABCMeta):
         self,
         file_path: Optional[str] = None,
         file_name: Optional[str] = None,
-        file_type: str = "csv",
+        file_type: str = "pkl",
         max_rows: Optional[int] = None,
         config: Optional[Dict] = None,
     ) -> None:
         if config is not None:
-            self.file_path = config.get("file_path", "")
-            self.file_name = config.get("file_name", "")
-            self.file_type = config.get("file_type", "csv")
+            self.file_path = config.get("file_path", None)
+            self.file_name = config.get("file_name", None)
+            self.file_type = config.get("file_type", "pkl")
             self.max_rows = config.get("max_rows", None)
         else:
             self.file_path = file_path
