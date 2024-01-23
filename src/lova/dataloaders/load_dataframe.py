@@ -54,6 +54,7 @@ class DataFrameLoader(BaseDataLoader):
             drop_columns (Optional[List[str]]): A list of column names to be excluded.
         """
         if self.drop_columns is not None:
+            logger.info("Dropping columns: %s", self.drop_columns)
             self.column_names = [
                 element
                 for element in self.column_names
