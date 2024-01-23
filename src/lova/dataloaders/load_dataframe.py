@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import pandas as pd
 
@@ -16,6 +16,7 @@ class DataFrameLoader(BaseDataLoader):
     def __init__(
         self,
         column_names: Optional[pd.Index] = None,
+        drop_columns: Optional[List] = None,
         file_path: Optional[str] = None,
         file_name: Optional[str] = None,
         file_type: str = "pkl",
@@ -36,8 +37,30 @@ class DataFrameLoader(BaseDataLoader):
         super().__init__(file_path, file_name, file_type, max_rows, config)
         if config is not None:
             self.column_names = config.get("column_names", None)
+            self.drop_columns = config.get("drop_columns", None)
         else:
             self.column_names = column_names
+            self.drop_columns = drop_columns
+
+    def _update_column_names(self) -> None:
+        """
+        Updates the list of column names by excluding those specified in the drop_columns attribute.
+
+        This method modifies the column_names attribute of the class, removing any entries that
+        are present in the drop_columns attribute. If drop_columns is None, no changes are made.
+
+        Attributes:
+            column_names (List[str]): A list of column names to be updated.
+            drop_columns (Optional[List[str]]): A list of column names to be excluded.
+        """
+        if self.drop_columns is not None:
+            self.column_names = [
+                element
+                for element in self.column_names
+                if element not in self.drop_columns
+            ]
+        else:
+            pass
 
     @staticmethod
     def convert_string_to_tuple_of_num(value: Union[int, str]) -> tuple:
@@ -55,11 +78,12 @@ class DataFrameLoader(BaseDataLoader):
                                         integer or a string.
         """
         if isinstance(value, int):
-            return (value,)
+            return (abs(value),)
         else:
             elements = value.split("\x02")
             return tuple(
-                int(element) if element.isdigit() else element for element in elements
+                abs(int(element)) if element.lstrip("-").isdigit() else element
+                for element in elements
             )
 
     def _get_dataframe(self) -> None:
@@ -83,6 +107,7 @@ class DataFrameLoader(BaseDataLoader):
         if isinstance(data, pd.DataFrame):
             self.dataframe = data
             self.dataframe.columns = self.column_names
+            self.dataframe = self.dataframe.drop(columns=self.drop_columns)
         else:
             logger.error("Failed to load data from %s", file_url)
             self.dataframe = pd.DataFrame()
@@ -105,6 +130,7 @@ class DataFrameLoader(BaseDataLoader):
             pd.DataFrame: The loaded and processed DataFrame.
         """
         self._get_dataframe()
+        self._update_column_names()
         self._literal_dataframe()
         logger.info("Data loading finished")
         return self.dataframe
