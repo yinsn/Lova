@@ -36,7 +36,7 @@ class HDFSDataloader:
         self,
         hdfs_path: str,
         mod: int,
-        mod_index: int = 1,
+        mod_index: int = 0,
         remainder: int = 0,
         max_file_num: Optional[int] = None,
         num_jobs: Optional[int] = None,
