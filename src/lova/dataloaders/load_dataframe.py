@@ -17,6 +17,7 @@ class DataFrameLoader(BaseDataLoader):
         self,
         column_names: Optional[pd.Index] = None,
         drop_columns: Optional[List] = None,
+        keep_columns: Optional[List] = None,
         file_path: Optional[str] = None,
         file_name: Optional[str] = None,
         file_type: str = "pkl",
@@ -28,6 +29,8 @@ class DataFrameLoader(BaseDataLoader):
 
         Args:
             column_names (pd.Index): Index object representing the column names of the DataFrame.
+            drop_columns (Optional[List]): List of column names to be dropped. Defaults to None.
+            keep_columns (Optional[List]): List of column names to be kept. Defaults to None.
             file_path (Optional[str]): Path of the file to be loaded. Defaults to None.
             file_name (Optional[str]): Name of the file to be loaded. Defaults to None.
             file_type (str): Type of the file to be loaded (e.g., 'csv', 'pkl'). Defaults to 'pkl'.
@@ -38,9 +41,11 @@ class DataFrameLoader(BaseDataLoader):
         if config is not None:
             self.column_names = config.get("column_names", None)
             self.drop_columns = config.get("drop_columns", None)
+            self.keep_columns = config.get("keep_columns", None)
         else:
             self.column_names = column_names
             self.drop_columns = drop_columns
+            self.keep_columns = keep_columns
 
     def _update_column_names(self) -> None:
         """
@@ -59,6 +64,11 @@ class DataFrameLoader(BaseDataLoader):
                 element
                 for element in self.column_names
                 if element not in self.drop_columns
+            ]
+        elif self.keep_columns is not None:
+            logger.info("Keeping columns: %s", self.keep_columns)
+            self.column_names = [
+                element for element in self.column_names if element in self.keep_columns
             ]
         else:
             pass
@@ -108,7 +118,10 @@ class DataFrameLoader(BaseDataLoader):
         if isinstance(data, pd.DataFrame):
             self.dataframe = data
             self.dataframe.columns = self.column_names
-            self.dataframe = self.dataframe.drop(columns=self.drop_columns)
+            if self.drop_columns is not None:
+                self.dataframe = self.dataframe.drop(columns=self.drop_columns)
+            elif self.keep_columns is not None:
+                self.dataframe = self.dataframe[self.keep_columns]
         else:
             logger.error("Failed to load data from %s", file_url)
             self.dataframe = pd.DataFrame()
