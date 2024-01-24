@@ -36,6 +36,7 @@ class HDFSDataloader:
         self,
         hdfs_path: str,
         mod: int,
+        save_path: Optional[str] = None,
         mod_index: int = 0,
         remainder: int = 0,
         max_file_num: Optional[int] = None,
@@ -48,6 +49,7 @@ class HDFSDataloader:
         Args:
             hdfs_path (str): The HDFS path to read files from.
             mod (int): The divisor for the modulus operation used in filtering.
+            save_path (Optional[str]): The local path to save the downloaded files. Default is None.
             mod_index (int): The index of the element in each line to apply the modulus operation.
             remainder (int): The remainder for the modulus operation used in filtering.
             max_file_num (Optional[int]): The maximum number of files to process. Default is None.
@@ -57,6 +59,7 @@ class HDFSDataloader:
         """
         self.hdfs_path = hdfs_path
         self.mod = mod
+        self.save_path = save_path
         self.mod_index = mod_index
         self.remainder = remainder
         self.max_file_num = max_file_num
@@ -69,6 +72,21 @@ class HDFSDataloader:
             self.num_jobs = num_jobs
         self.delimiter = delimiter
         self.get_file_list()
+
+    def _create_save_path(self) -> None:
+        """
+        Creates a directory for saving files, based on the `save_path` attribute of the instance.
+
+        This method checks if `save_path` is set for the instance. If not, it defaults to the current
+        working directory. If `save_path` is set, it creates a path relative to the current working
+        directory. It then ensures that this directory exists, creating it if necessary.
+        """
+        if self.save_path is None:
+            self.save_path = os.getcwd()
+        else:
+            self.save_path = os.path.join(os.getcwd(), self.save_path)
+        if not os.path.exists(self.save_path):
+            os.makedirs(self.save_path)
 
     def get_file_list(self) -> None:
         """
@@ -157,7 +175,9 @@ class HDFSDataloader:
         """
         df = pd.DataFrame(data)
         output_filename = f"output_{file_index}.pkl"
-        df.to_pickle(output_filename)
+        self._create_save_path()
+        output_url = os.path.join(str(self.save_path), output_filename)
+        df.to_pickle(output_url)
 
     def __iter__(self) -> Iterator[List[str]]:
         """
