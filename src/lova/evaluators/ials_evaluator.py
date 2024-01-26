@@ -142,6 +142,13 @@ class ImplicitALSEvaluator(BaseEvaluator):
             bool_strength_vector=strength_vector,
             numerical_bool_ratio=numerical_bool_ratio,
         )
+        try:
+            logger.info(
+                f"Best Trial at {self.study.best_trial.number}: {self.study.best_trial.values}."
+            )
+            logger.info(f"Best Params: {self.study.best_trial.params}")
+        except:
+            pass
         return score
 
     def tune(self, n_trials: int = 100) -> None:
