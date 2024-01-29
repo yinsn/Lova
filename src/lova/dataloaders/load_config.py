@@ -25,7 +25,7 @@ def load_config(file_path: Optional[str] = None) -> Dict:
         logger.info(
             "No configuration file path provided, using default 'config.yml' file in current directory."
         )
-        file_path = os.path.abspath("/config.yml")
+        file_path = os.path.abspath("config.yml")
 
     else:
         file_path = os.path.abspath(file_path)
