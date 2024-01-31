@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Dict, Optional
 
 from joblib import Parallel, delayed
 from pyarrow import hdfs
@@ -21,6 +21,7 @@ class HDFSDownloader:
         fs (hdfs.client.Client): HDFS client instance.
         file_list (List[str]): List of file names to be downloaded.
         file_sizes (List[int]): List of file sizes corresponding to `file_list`.
+        config (Optional[Dict]): Configuration parameters for data loading. Defaults to None.
     """
 
     def __init__(
@@ -28,11 +29,18 @@ class HDFSDownloader:
         hdfs_path: str,
         save_path: str = "./downloaded_files/",
         max_file_num: Optional[int] = None,
+        config: Optional[Dict] = None,
     ) -> None:
         """Initializes the HDFSDownloader with paths and connection."""
-        self.hdfs_path = hdfs_path
-        self.save_path = save_path
-        self.max_file_num = max_file_num
+        if config is not None:
+            self.hdfs_path = config.get("hdfs_path", None)
+            self.save_path = config.get("save_path", "./downloaded_files/")
+            self.max_file_num = config.get("max_file_num", None)
+        else:
+            self.hdfs_path = hdfs_path
+            self.save_path = save_path
+            self.max_file_num = max_file_num
+
         self.fs = hdfs.connect(
             extra_conf={"fs.hdfs.impl": "org.apache.hadoop.hdfs.DistributedFileSystem"}
         )
@@ -40,6 +48,8 @@ class HDFSDownloader:
 
     def get_file_list(self) -> None:
         """Retrieves and stores the list of files from the HDFS path."""
+        if self.hdfs_path is None:
+            raise ValueError("HDFS path is not specified.")
         file_infos = self.fs.ls(self.hdfs_path, detail=True)
         self.file_list = []
         self.file_sizes = []
