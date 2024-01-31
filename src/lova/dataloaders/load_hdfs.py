@@ -25,11 +25,11 @@ class HDFSDataloader:
 
     def __init__(
         self,
+        mod: int,
+        remainder: int,
         hdfs_path: Optional[str] = None,
-        mod: int = 10,
         save_path: Optional[str] = None,
         mod_index: int = 0,
-        remainder: int = 0,
         max_file_num: Optional[int] = None,
         num_jobs: Optional[int] = None,
         delimiter: str = "\t",
@@ -39,30 +39,30 @@ class HDFSDataloader:
         Initializes the HDFSDataloader with the given parameters.
 
         Args:
-            hdfs_path (Optional[str]): The HDFS path from where files are to be downloaded. Default is None.
             mod (int): The divisor for the modulus operation used in filtering.
-            save_path (Optional[str]): The local path to save the downloaded files. Default is None.
-            mod_index (int): The index of the element in each line to apply the modulus operation.
             remainder (int): The remainder for the modulus operation used in filtering.
+            hdfs_path (Optional[str]): The HDFS path from where files are to be downloaded. Default is None.
+            save_path (Optional[str]): The local path to save the downloaded files. Default is None.
+            mod_index (Optional[int]): The index of the element in each line to apply the modulus operation.
             max_file_num (Optional[int]): The maximum number of files to process. Default is None.
             num_jobs (Optional[int]): The number of parallel jobs to use for processing. Default is None.
             delimiter (str): The delimiter used in the files. Default is tab ('\t').
             config (Optional[Dict]): Configuration parameters for data loading. Defaults to None.
 
         """
+        self.mod = mod
+        self.remainder = remainder
+
         if config is not None:
             self.hdfs_path = config.get("hdfs_path", None)
             self.save_path = config.get("save_path", None)
             self.mod_index = config.get("mod_index", 0)
-            self.remainder = config.get("remainder", 0)
             self.max_file_num = config.get("max_file_num", None)
             self.delimiter = config.get("delimiter", "\t")
         else:
             self.hdfs_path = hdfs_path
             self.save_path = save_path
             self.mod_index = mod_index
-            self.mod = mod
-            self.remainder = remainder
             self.max_file_num = max_file_num
             self.delimiter = delimiter
 
