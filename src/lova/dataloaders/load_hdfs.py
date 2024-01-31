@@ -1,6 +1,6 @@
 import io
 import os
-from typing import Iterator, List, Optional
+from typing import Dict, Iterator, List, Optional
 
 import pandas as pd
 from joblib import Parallel, delayed
@@ -42,6 +42,7 @@ class HDFSDataloader:
         max_file_num: Optional[int] = None,
         num_jobs: Optional[int] = None,
         delimiter: str = "\t",
+        config: Optional[Dict] = None,
     ) -> None:
         """
         Initializes the HDFSDataloader with the given parameters.
@@ -55,14 +56,25 @@ class HDFSDataloader:
             max_file_num (Optional[int]): The maximum number of files to process. Default is None.
             num_jobs (Optional[int]): The number of parallel jobs to use for processing. Default is None.
             delimiter (str): The delimiter used in the files. Default is tab ('\t').
+            config (Optional[Dict]): Configuration parameters for data loading. Defaults to None.
 
         """
-        self.hdfs_path = hdfs_path
-        self.mod = mod
-        self.save_path = save_path
-        self.mod_index = mod_index
-        self.remainder = remainder
-        self.max_file_num = max_file_num
+        if config is not None:
+            self.hdfs_path = config.get("hdfs_path", None)
+            self.save_path = config.get("save_path", None)
+            self.mod_index = config.get("mod_index", 0)
+            self.remainder = config.get("remainder", 0)
+            self.max_file_num = config.get("max_file_num", None)
+            self.delimiter = config.get("delimiter", "\t")
+        else:
+            self.hdfs_path = hdfs_path
+            self.save_path = save_path
+            self.mod_index = mod_index
+            self.mod = mod
+            self.remainder = remainder
+            self.max_file_num = max_file_num
+            self.delimiter = delimiter
+
         self.fs = hdfs.connect(
             extra_conf={"fs.hdfs.impl": "org.apache.hadoop.hdfs.DistributedFileSystem"}
         )
@@ -70,7 +82,6 @@ class HDFSDataloader:
             self.num_jobs = LOGICAL_PROCESSORS_COUNT
         else:
             self.num_jobs = num_jobs
-        self.delimiter = delimiter
         self.get_file_list()
 
     def _create_save_path(self) -> None:
