@@ -21,21 +21,12 @@ class HDFSDataloader:
     This class provides functionalities for reading files from HDFS in batches,
     filtering them based on a modulus operation, and saving the filtered data
     into Pandas dataframes.
-
-    Attributes:
-        hdfs_path (str): The HDFS path to read files from.
-        mod (int): The divisor for the modulus operation used in filtering.
-        mod_index (int): The index of the element in each line to apply the modulus operation.
-        max_file_num (Optional[int]): The maximum number of files to process.
-        num_jobs (Optional[int]): The number of parallel jobs to use for processing.
-        delimiter (str): The delimiter used in the files.
-
     """
 
     def __init__(
         self,
-        hdfs_path: str,
-        mod: int,
+        hdfs_path: Optional[str] = None,
+        mod: int = 10,
         save_path: Optional[str] = None,
         mod_index: int = 0,
         remainder: int = 0,
@@ -48,7 +39,7 @@ class HDFSDataloader:
         Initializes the HDFSDataloader with the given parameters.
 
         Args:
-            hdfs_path (str): The HDFS path to read files from.
+            hdfs_path (Optional[str]): The HDFS path from where files are to be downloaded. Default is None.
             mod (int): The divisor for the modulus operation used in filtering.
             save_path (Optional[str]): The local path to save the downloaded files. Default is None.
             mod_index (int): The index of the element in each line to apply the modulus operation.

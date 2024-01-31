@@ -15,7 +15,7 @@ class HDFSDownloader:
     path to a local directory. It supports limiting the number of files downloaded.
 
     Attributes:
-        hdfs_path (str): The HDFS path from where files are to be downloaded.
+        hdfs_path (Optional[str]): The HDFS path from where files are to be downloaded.
         save_path (str): The local path where files are to be saved.
         max_file_num (Optional[int]): Maximum number of files to download. If None, all files are downloaded.
         fs (hdfs.client.Client): HDFS client instance.
@@ -26,7 +26,7 @@ class HDFSDownloader:
 
     def __init__(
         self,
-        hdfs_path: str,
+        hdfs_path: Optional[str] = None,
         save_path: str = "./downloaded_files/",
         max_file_num: Optional[int] = None,
         config: Optional[Dict] = None,
